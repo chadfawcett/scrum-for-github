@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/chadfawcett/scrum-for-github/issues"
   },
-  "homepage": "https://github.com/chadfawcett/scrum-for-github#readme"
+  "homepage": "https://github.com/chadfawcett/scrum-for-github#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@twostoryrobot/prettier-config": "^2.0.1",
+    "prettier": "^1.13.7"
+  }
 }
