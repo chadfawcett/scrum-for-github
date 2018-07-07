@@ -10,5 +10,8 @@
       "matches": ["https://github.com/*/projects/*"],
       "js": ["projects.js"]
     }
-  ]
+  ],
+  "background": {
+    "scripts": ["hot-reload.js"]
+  }
 }
