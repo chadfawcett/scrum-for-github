@@ -6,7 +6,7 @@ function ensureIssueCardLabelsExist(issueCard) {
   let labels = issueCard.querySelector('.labels')
   if (!labels) {
     labels = document.createElement('span')
-    labels.className = 'labels d-block pb-1 pr-6'
+    labels.className = 'labels d-block pb-1 pr-6 sfg'
     issueCard
       .querySelector('.js-project-issue-details-container')
       .insertBefore(labels, issueCard.querySelector('.AvatarStack'))
@@ -56,8 +56,10 @@ const columnObserver = new MutationObserver(mutations => {
           )
           if (!issueTitle) return 0
 
-          const issuePointsMatch = estimatePattern.exec(issueTitle.innerText)
-          if (!issuePointsMatch) return 0
+          const issuePointsMatch = estimatePattern.exec(issueTitle.innerHTML)
+          const labelPoints = issueCard.querySelector('.sfg')
+          if (!issuePointsMatch)
+            return labelPoints ? parseFloat(labelPoints.innerText) : 0
 
           const [estimateMatch, estimateValue] = issuePointsMatch
 
