@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "scrum-for-github",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Chrome extension to add scrum points to issues",
   "main": "index.js",
   "scripts": {
