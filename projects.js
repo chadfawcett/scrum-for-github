@@ -48,6 +48,9 @@ const columnObserver = new MutationObserver(mutations => {
       //  Note these are organized by the actual issue ids and not issue-card ids
       const issueCards = Array.from(column.querySelectorAll('.issue-card'))
 
+      //  Skip when there are no cards in the column
+      if (!issueCards.length) return
+
       //  Update each card points value, and calculate column total
       const columnPoints = issueCards
         .map(issueCard => {
