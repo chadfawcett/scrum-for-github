@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "parcel watch src/index.js src/index.css",
-    "build": "parcel build src/index.js src/index.css"
+    "dev": "parcel watch src/manifest.json",
+    "build": "parcel build src/manifest.json"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
   "devDependencies": {
     "@twostoryrobot/prettier-config": "^2.0.1",
     "parcel-bundler": "^1.11.0",
+    "parcel-plugin-web-extension": "^1.5.1",
     "prettier": "^1.13.7"
   },
   "browserslist": [
