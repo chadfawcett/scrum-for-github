@@ -8,8 +8,8 @@
   "content_scripts": [
     {
       "matches": ["https://github.com/*/projects/*"],
-      "js": ["index.js"],
-      "css": ["index.css"],
+      "js": ["project.js"],
+      "css": ["project.css"],
       "run_at": "document_end"
     }
   ],
