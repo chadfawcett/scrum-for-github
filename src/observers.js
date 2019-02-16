@@ -1,3 +1,4 @@
+import fetchIssues from './fetchIssues'
 import {
   ensureIssueCardLabelsExist,
   ensureColumnPointsLabelExists,
@@ -8,41 +9,30 @@ import {
 //  Match a positive number (integer or decimal) wrapped in square brackets
 const estimatePattern = /\s?\[(?<estimateValue>(?:0|[1-9]\d*)?(?:\.\d+)?)\]\s?/
 
-export const columnObserver = new MutationObserver(mutations => {
-  console.log(mutations)
+const issuesPromise = fetchIssues()
+
+export const columnObserver = new MutationObserver(async mutations => {
+  const issues = await issuesPromise
+
   mutations.forEach(async ({ addedNodes, target: column }) => {
-    if (addedNodes.length) {
-      //  Note these are organized by the actual issue ids and not issue-card ids
-      const issueCards = Array.from(column.querySelectorAll('.issue-card'))
+    const issueCards = Array.from(addedNodes).filter(
+      node => node.dataset && node.dataset.cardType.includes('issue')
+    )
 
-      //  Skip when there are no cards in the column
-      if (!issueCards.length) return
-
-      //  Update each card points value, and calculate column total
+    if (issueCards.length) {
+      //  Update each card points value, while calculating column total
       const columnPoints = issueCards
         .map(issueCard => {
-          const issueTitle = issueCard.querySelector(
-            'a.js-project-card-issue-link'
-          )
-          if (!issueTitle) return 0
+          //  Find the matching issue data
+          const issue = issues[issueCard.dataset.contentId]
 
-          const issuePointsMatch = estimatePattern.exec(issueTitle.innerHTML)
-          const labelPoints = issueCard.querySelector('.sfg')
-          if (!issuePointsMatch)
-            return labelPoints ? parseFloat(labelPoints.innerText) : 0
-
-          const [estimateMatch, estimateValue] = issuePointsMatch
+          if (!issue || !issue.estimate) return 0
 
           //  Update label value
           const pointsLabel = ensureIssueCardLabelsExist(issueCard)
-          pointsLabel.innerText = estimateValue
+          pointsLabel.innerText = issue.estimate
 
-          //  Remove estimate from issue title
-          issueTitle.innerText = issueTitle.innerText
-            .replace(estimateMatch, ' ')
-            .trim()
-
-          return parseFloat(estimateValue)
+          return parseFloat(issue.estimate)
         })
         .reduce((acc, val) => acc + val)
 
