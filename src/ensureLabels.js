@@ -37,18 +37,3 @@ export function ensureColumnPointsLabelExists(column) {
 
   return pointsLabel
 }
-
-export function ensureIssueDetailsPaneLabelExists(issueDetailsPane) {
-  const issueHeader = issueDetailsPane.querySelector('a > span.js-issue-title')
-
-  let pointsLabel = issueHeader.querySelector('.points-label')
-  if (!pointsLabel) {
-    pointsLabel = document.createElement('button')
-    pointsLabel.className =
-      'points-label points-label--title js-card-filter issue-card-label ' +
-      'IssueLabel v-align-middle css-truncate css-truncate-target'
-    issueHeader.parentNode.insertBefore(pointsLabel, issueHeader)
-  }
-
-  return pointsLabel
-}

@@ -1,13 +1,8 @@
 import fetchIssues from './fetchIssues'
 import {
   ensureIssueCardLabelsExist,
-  ensureColumnPointsLabelExists,
-  ensureIssueDetailsPaneLabelExists
+  ensureColumnPointsLabelExists
 } from './ensureLabels'
-
-//  Point estimation syntax
-//  Match a positive number (integer or decimal) wrapped in square brackets
-const estimatePattern = /\s?\[(?<estimateValue>(?:0|[1-9]\d*)?(?:\.\d+)?)\]\s?/
 
 const issuesPromise = fetchIssues()
 
@@ -41,24 +36,4 @@ export const columnObserver = new MutationObserver(async mutations => {
       pointsLabel.innerText = columnPoints
     }
   })
-})
-
-export const issueDetailsPaneObserver = new MutationObserver(mutations => {
-  console.log(mutations)
-  const { target: issueDetailsPane } = mutations[mutations.length - 1]
-
-  const issueTitle = issueDetailsPane.querySelector('a > span.js-issue-title')
-  if (!issueTitle) return
-
-  const issuePointsMatch = estimatePattern.exec(issueTitle.innerText)
-  if (!issuePointsMatch) return
-
-  const [estimateMatch, estimateValue] = issuePointsMatch
-
-  //  Update label value
-  const pointsLabel = ensureIssueDetailsPaneLabelExists(issueDetailsPane)
-  pointsLabel.innerText = estimateValue
-
-  //  Remove estimate from issue title
-  issueTitle.innerText = issueTitle.innerText.replace(estimateMatch, ' ').trim()
 })
