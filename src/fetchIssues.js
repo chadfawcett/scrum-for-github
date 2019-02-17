@@ -1,8 +1,8 @@
 import { storage } from 'webextension-polyfill'
 
 let ghAccessToken
-let issuePromise = Promise.resolve([])
 let lastFetch = 0
+let issuePromise = fetchIssues()
 
 export default async function fetchIssues() {
   //  Use cache if less than 10 seconds old
@@ -12,6 +12,7 @@ export default async function fetchIssues() {
     return issuePromise
   }
   lastFetch = now
+  console.debug('fetching issues')
 
   if (!ghAccessToken)
     ghAccessToken = (await storage.local.get(['ghAccessToken'])).ghAccessToken
@@ -19,7 +20,6 @@ export default async function fetchIssues() {
   if (!ghAccessToken)
     throw new Error('You must set your personal access token for GitHub')
 
-  console.debug('fetching issues')
   issuePromise = (async () => {
     const res = await fetch('https://api.github.com/graphql', {
       method: 'POST',
