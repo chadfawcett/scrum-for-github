@@ -1,4 +1,4 @@
-import fetchIssues from './fetchIssues'
+import { fetchIssues } from './fetchIssues'
 import {
   ensureIssueCardLabelsExist,
   ensureColumnPointsLabelExists,
@@ -52,11 +52,13 @@ export const issueDetailsPaneObserver = new MutationObserver(
 
     mutations
       .filter(m => m.addedNodes.length > 0)
-      .forEach(async ({ target: issueDetailsPane }) => {
+      .forEach(({ target: issueDetailsPane }) => {
         if (!issueDetailsPane) return
-        console.log(issueDetailsPane)
-        const pointsLabel = ensureIssueDetailsPaneLabelExists(issueDetailsPane)
-        pointsLabel.innerText = issue.estimate
+        const pointsLabel = ensureIssueDetailsPaneLabelExists(
+          issueDetailsPane,
+          id
+        )
+        pointsLabel.value = parseFloat(issue.estimate)
       })
   }
 )

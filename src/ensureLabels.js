@@ -38,7 +38,7 @@ export function ensureColumnPointsLabelExists(column) {
   return pointsLabel
 }
 
-export function ensureIssueDetailsPaneLabelExists(issueDetailsPane) {
+export function ensureIssueDetailsPaneLabelExists(issueDetailsPane, issueId) {
   const sidebarLabels = issueDetailsPane.querySelector(
     '.discussion-sidebar-item.sidebar-labels'
   )
@@ -51,14 +51,14 @@ export function ensureIssueDetailsPaneLabelExists(issueDetailsPane) {
   if (!sidebarPoints) {
     sidebarPoints = document.createElement('div')
     sidebarPoints.className = sidebarLabels.className
-    sidebarPoints.classList.replace('sidebar-label', 'sidebar-points')
+    sidebarPoints.classList.replace('sidebar-labels', 'sidebar-points')
 
     sidebarPoints.innerHTML = `
       <summary class="text-bold discussion-sidebar-heading">
         Points
       </summary>
       <span class="css-truncate js-issue-assignees">
-        Estimate: <span id="sidebar-points-label"></span>
+        Estimate: <input type="number" id="sidebar-points-label" data-issue-id="${issueId}">
       </span>
     `
     sidebarLabels.parentNode.insertBefore(
@@ -68,18 +68,6 @@ export function ensureIssueDetailsPaneLabelExists(issueDetailsPane) {
   }
 
   const pointsLabel = sidebarPoints.querySelector('#sidebar-points-label')
-  if (!pointsLabel) {
-    sidebarPoints.innerHTML = `
-      <summary class="text-bold discussion-sidebar-heading">
-        Points
-      </summary>
-      <span class="css-truncate js-issue-assignees">
-        Estimate: <span id="sidebar-points-label"></span>
-      </span>
-    `
-
-    pointsLabel = sidebarPoints.querySelector('#sidebar-points-label')
-  }
 
   return pointsLabel
 }

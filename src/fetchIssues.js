@@ -2,9 +2,10 @@ import { storage } from 'webextension-polyfill'
 
 let ghAccessToken
 let lastFetch = 0
-let issuePromise = fetchIssues()
+let issuePromise
+issuePromise = fetchIssues()
 
-export default async function fetchIssues() {
+export async function fetchIssues() {
   //  Use cache if less than 10 seconds old
   const now = Date.now()
   if (now - lastFetch < 10000) {
@@ -14,38 +15,26 @@ export default async function fetchIssues() {
   lastFetch = now
   console.debug('fetching issues')
 
-  if (!ghAccessToken)
-    ghAccessToken = (await storage.local.get(['ghAccessToken'])).ghAccessToken
-
-  if (!ghAccessToken)
-    throw new Error('You must set your personal access token for GitHub')
-
   issuePromise = (async () => {
-    const res = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: {
-        Authorization: `token ${ghAccessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        query: `query($query: String!) {
-          search(
-            first: 100,
-            type: ISSUE,
-            query: $query
-          ) {
-            nodes {
-              ... on Issue {
-                body
-                databaseId
-              }
+    const res = await github({
+      query: `query($query: String!) {
+        search(
+          first: 100,
+          type: ISSUE,
+          query: $query
+        ) {
+          nodes {
+            ... on Issue {
+              id
+              body
+              databaseId
             }
           }
-        }`,
-        variables: {
-          query: 'project:chadfawcett/1'
         }
-      })
+      }`,
+      variables: {
+        query: 'project:chadfawcett/1'
+      }
     })
 
     const issues = (await res.json()).data.search.nodes
@@ -64,9 +53,59 @@ export default async function fetchIssues() {
   return issuePromise
 }
 
+export async function updateEstimate(issueId, estimate) {
+  estimate = parseFloat(estimate)
+  const issue = (await issuePromise)[issueId]
+
+  //  No need to update if estimate did not change
+  if (issue.estimate === estimate) return
+
+  issue.estimate = estimate
+
+  const issueInput = {
+    id: issue.id,
+    body: getUpdatedBody(issue)
+  }
+
+  await github({
+    query: `mutation($issueInput: UpdateIssueInput!) {
+      updateIssue(input: $issueInput) {
+        issue {
+          id
+          body
+          databaseId
+        }
+      }
+    }`,
+    variables: {
+      issueInput
+    }
+  })
+
+  console.debug(`Updated issue ${issue.id}`)
+}
+
+async function github(request) {
+  if (!ghAccessToken)
+    ghAccessToken = (await storage.local.get(['ghAccessToken'])).ghAccessToken
+
+  if (!ghAccessToken)
+    throw new Error('You must set your personal access token for GitHub')
+
+  return fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      Authorization: `token ${ghAccessToken}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/vnd.github.starfire-preview+json'
+    },
+    body: JSON.stringify(request)
+  })
+}
+
 //  Example issue metadata: <!-- scrum = {"estimate":1.5} -->
 const metadataPattern = /<!-- scrum = (.*) -->/
-const parseEstimate = issue => {
+function parseEstimate(issue) {
   if (!issue || !issue.body) return
 
   const match = issue.body.match(metadataPattern)
@@ -74,4 +113,19 @@ const parseEstimate = issue => {
   if (!match) return
 
   issue.estimate = JSON.parse(match[1]).estimate
+}
+
+function getUpdatedBody(issue) {
+  if (!issue || !issue.body || !issue.estimate) return issue
+
+  const match = issue.body.match(metadataPattern)
+
+  if (!match) return issue
+
+  return issue.body.replace(
+    match[1],
+    JSON.stringify({
+      estimate: issue.estimate
+    })
+  )
 }
