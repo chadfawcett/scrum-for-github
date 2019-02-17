@@ -1,7 +1,8 @@
 import fetchIssues from './fetchIssues'
 import {
   ensureIssueCardLabelsExist,
-  ensureColumnPointsLabelExists
+  ensureColumnPointsLabelExists,
+  ensureIssueDetailsPaneLabelExists
 } from './ensureLabels'
 
 const issuesPromise = fetchIssues()
@@ -37,3 +38,25 @@ export const columnObserver = new MutationObserver(async mutations => {
     }
   })
 })
+
+export const issueDetailsPaneObserver = new MutationObserver(
+  async mutations => {
+    const issues = await issuesPromise
+
+    //  Get issue id from close button
+    const btn = document.getElementById('issue-state-button-wrapper')
+    if (!btn) return
+    const id = btn.dataset.channel.split(':')[1]
+
+    const issue = issues[id]
+
+    mutations
+      .filter(m => m.addedNodes.length > 0)
+      .forEach(async ({ target: issueDetailsPane }) => {
+        if (!issueDetailsPane) return
+        console.log(issueDetailsPane)
+        const pointsLabel = ensureIssueDetailsPaneLabelExists(issueDetailsPane)
+        pointsLabel.innerText = issue.estimate
+      })
+  }
+)

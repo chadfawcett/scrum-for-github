@@ -1,4 +1,4 @@
-import { columnObserver } from './observers'
+import { columnObserver, issueDetailsPaneObserver } from './observers'
 
 const columns = document.querySelectorAll('.project-column')
 columns.forEach(column =>
@@ -7,3 +7,6 @@ columns.forEach(column =>
     { childList: true }
   )
 )
+
+const issueDetailsPane = document.querySelector('.js-project-card-details')
+issueDetailsPaneObserver.observe(issueDetailsPane, { childList: true })

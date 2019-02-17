@@ -37,3 +37,49 @@ export function ensureColumnPointsLabelExists(column) {
 
   return pointsLabel
 }
+
+export function ensureIssueDetailsPaneLabelExists(issueDetailsPane) {
+  const sidebarLabels = issueDetailsPane.querySelector(
+    '.discussion-sidebar-item.sidebar-labels'
+  )
+  //  If there are no labels, the sidebar hasn't finished loading
+  if (!sidebarLabels) return
+
+  let sidebarPoints = issueDetailsPane.querySelector(
+    '.discussion-sidebar-item.sidebar-points'
+  )
+  if (!sidebarPoints) {
+    sidebarPoints = document.createElement('div')
+    sidebarPoints.className = sidebarLabels.className
+    sidebarPoints.classList.replace('sidebar-label', 'sidebar-points')
+
+    sidebarPoints.innerHTML = `
+      <summary class="text-bold discussion-sidebar-heading">
+        Points
+      </summary>
+      <span class="css-truncate js-issue-assignees">
+        Estimate: <span id="sidebar-points-label"></span>
+      </span>
+    `
+    sidebarLabels.parentNode.insertBefore(
+      sidebarPoints,
+      sidebarLabels.nextSibling
+    )
+  }
+
+  const pointsLabel = sidebarPoints.querySelector('#sidebar-points-label')
+  if (!pointsLabel) {
+    sidebarPoints.innerHTML = `
+      <summary class="text-bold discussion-sidebar-heading">
+        Points
+      </summary>
+      <span class="css-truncate js-issue-assignees">
+        Estimate: <span id="sidebar-points-label"></span>
+      </span>
+    `
+
+    pointsLabel = sidebarPoints.querySelector('#sidebar-points-label')
+  }
+
+  return pointsLabel
+}
