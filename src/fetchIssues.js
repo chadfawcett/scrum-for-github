@@ -1,11 +1,15 @@
 import { storage } from 'webextension-polyfill'
 
+const [, , login, projectNum] = window.location.pathname.match(
+  /^\/(users|orgs)\/(.*)\/projects\/(\d+)$/
+)
+
 let ghAccessToken
 let lastFetch = 0
 let issuePromise
 issuePromise = fetchIssues()
 
-export async function fetchIssues() {
+export async function fetchIssues(project = `${login}/${projectNum}`) {
   //  Use cache if less than 10 seconds old
   const now = Date.now()
   if (now - lastFetch < 10000) {
@@ -33,7 +37,7 @@ export async function fetchIssues() {
         }
       }`,
       variables: {
-        query: 'project:chadfawcett/1'
+        query: `project:${project}`
       }
     })
 
@@ -120,7 +124,10 @@ function getUpdatedBody(issue) {
 
   const match = issue.body.match(metadataPattern)
 
-  if (!match) return issue
+  if (!match)
+    return (issue.body += `\r\r<!-- scrum = ${JSON.stringify({
+      estimate: issue.estimate
+    })} -->`)
 
   return issue.body.replace(
     match[1],
