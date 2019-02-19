@@ -8,11 +8,8 @@
   "content_scripts": [
     {
       "matches": ["https://github.com/*/projects/*"],
-      "js": [
-        "node_modules/webextension-polyfill/dist/browser-polyfill.js",
-        "projects.js"
-      ],
-      "css": ["projects.css"],
+      "js": ["project.js"],
+      "css": ["project.css"],
       "run_at": "document_end"
     }
   ],
